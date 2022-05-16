@@ -25,19 +25,25 @@ const hashFunc = (wordInput: string): number => {
 
 
 
+let maxProbing = 0
+let totalProbing = 0
 // create hash table
 const hashTable = Array(10000)
 for (let i in dictionary){
+    let probingCount = 0
     let hashIndex = hashFunc(dictionary[i][0]) % 10000
 
     while (hashTable[hashIndex] !== undefined){
+        probingCount++
         hashIndex++
         hashIndex = hashIndex % 10000
     }
 
+    totalProbing += probingCount
+    if(probingCount > maxProbing)
+        maxProbing = probingCount
     hashTable[hashIndex] = [dictionary[i][0],dictionary[i][1]]
 }
-
 
 
 
@@ -50,6 +56,7 @@ const searchHashTable = (word: string): string => {
         if(hashTable[hashIndex][0] == word)
             return hashTable[hashIndex][1]
         
+        
         hashIndex++
         hashIndex = hashIndex % 10000
     }
@@ -60,5 +67,7 @@ const searchHashTable = (word: string): string => {
 
 
 
-const trans = searchHashTable("abouts")
+const trans = searchHashTable("zooming")
 console.log( trans );
+console.log(maxProbing, totalProbing);
+

@@ -11,14 +11,21 @@ var hashFunc = function (wordInput) {
         code += wordInput.charCodeAt(i);
     return code;
 };
+var maxProbing = 0;
+var totalProbing = 0;
 // create hash table
 var hashTable = Array(10000);
 for (var i in dictionary) {
+    var probingCount = 0;
     var hashIndex = hashFunc(dictionary[i][0]) % 10000;
     while (hashTable[hashIndex] !== undefined) {
+        probingCount++;
         hashIndex++;
         hashIndex = hashIndex % 10000;
     }
+    totalProbing += probingCount;
+    if (probingCount > maxProbing)
+        maxProbing = probingCount;
     hashTable[hashIndex] = [dictionary[i][0], dictionary[i][1]];
 }
 var searchHashTable = function (word) {
@@ -31,5 +38,6 @@ var searchHashTable = function (word) {
     }
     return "*Sonuç Yok*";
 };
-var trans = searchHashTable("abouts");
+var trans = searchHashTable("zooming");
 console.log(trans);
+console.log(maxProbing, totalProbing);
