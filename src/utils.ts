@@ -1,4 +1,4 @@
-const searchWord = (searchWord, dictionary) => {
+const searchWordInDisctionary = (searchWord, dictionary) => {
     for(let words of dictionary)
         if(words[0] === searchWord)
             return words[1]
@@ -6,6 +6,9 @@ const searchWord = (searchWord, dictionary) => {
     return "*Sonuç Yok*"
 }
 
-module.exports = {
-    searchWord,
+
+
+
+export {
+    searchWordInDisctionary,
 }
