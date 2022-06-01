@@ -1,4 +1,4 @@
-import { DictionaryHashTable } from "./Dictionary Hash Table/DictionaryHashTable"
+import DictionaryHashTable from "./Dictionary Hash Table/DictionaryHashTable"
 import { Dictionary } from "./Dictionary Hash Table/types"
 import { createDictionaryFromTextFile } from "./Dictionary Hash Table/utils"
 

@@ -1,6 +1,6 @@
 import { createWriteStream, writeFileSync } from "fs"
-import { hashFunc1, nextHashIndex1 } from "./HashFunctions"
 import { Dictionary, HashStringFunction, StringHashTable, OnCollisionNextIndexHandler, DictionaryHashTableOptions } from "./types"
+import { showStats, simpleNextHash, simpleStringHashFunction } from "./utils"
 
 
 
@@ -12,28 +12,27 @@ class DictionaryHashTable {
     hashFunc: HashStringFunction
     nextHash: OnCollisionNextIndexHandler
 
-    private maxCollisions: number
-    private totalCollisions: number
+    private allCollisions: number[] = []
 
 
 
     constructor(
         dictionary: Dictionary,
-        hashTableSize: number,
-        options: DictionaryHashTableOptions = { hashFunction: hashFunc1, nextHash: nextHashIndex1 }
+        tableSize: number,
+        options: DictionaryHashTableOptions = { hashFunction: simpleStringHashFunction, nextHash: simpleNextHash }
     ){
-        this.totalCollisions = 0
-        this.maxCollisions = 0
+        if(tableSize <= dictionary.length) throw new Error('Hash table size must be bigger than dictionary size.')
         this.hashFunc = options.hashFunction
         this.nextHash = options.nextHash
-        this.hashTable = Array(hashTableSize)
+        this.hashTable = Array(tableSize)
         
-        // fill in the hash table
-        dictionary.forEach( pair => this.add(pair) )
+        // Fill in the hash table.
+        dictionary.forEach( pair => this.add(pair))
         
+
+        // Statistics:
         console.log("*** Hash table created ***")
-        console.log("Total Collisions: ", this.totalCollisions)
-        console.log("Max collisions at a time: ", this.maxCollisions)
+        showStats(this.allCollisions)
     }
 
 
@@ -41,18 +40,21 @@ class DictionaryHashTable {
 
     add(input: [string, string]){
         let hashIndex = this.hashFunc(input[0]) % this.hashTable.length
+        const hashHistory: number[] = [hashIndex] // For detecting collision loop.
 
-        // detect/handle collisions
+        // detect / handle collisions.
         let collisions = 0
-        while(this.hashTable[hashIndex] !== undefined){
-            hashIndex = this.nextHash(input[0], hashIndex) % this.hashTable.length
+        while(this.hashTable[hashIndex]){
             collisions++
+            hashIndex = this.nextHash(input[0], hashIndex) % this.hashTable.length
+            
+            // Throw error on collision loop.
+            if(hashHistory.includes(hashIndex)) throw new Error('Infinite collision loop.')
+                hashHistory.push(hashIndex)
         }
         this.hashTable[hashIndex] = [ input[0], input[1] ]
 
-        this.totalCollisions += collisions
-        if(collisions > this.maxCollisions)
-            this.maxCollisions = collisions
+        this.allCollisions.push(collisions)
     }
 
 
@@ -92,6 +94,11 @@ class DictionaryHashTable {
 
 
 
-export {
-    DictionaryHashTable,
-}
+
+
+
+
+
+
+
+export default DictionaryHashTable

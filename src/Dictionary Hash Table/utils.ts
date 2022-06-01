@@ -1,5 +1,5 @@
 import { readFileSync } from "fs"
-import { Dictionary } from "./types"
+import { Dictionary, HashStringFunction, OnCollisionNextIndexHandler } from "./types"
 
 
 
@@ -36,13 +36,41 @@ const searchInDictionary = (searchWord: string, dictionary: Dictionary) => {
 
 
 
-const fib = (n: number): number => {
-    const table = [1,1]
 
-    for (let i=2; i<n; i++)
-        table[i] = table[i-1] + table[i-2]
+// Default hash function.
+const simpleStringHashFunction: HashStringFunction = (input) => {
+    const g = 17
+    let hash = 0
 
-    return table[n-1]
+    for(let i=0; i<input.length; i++){
+        hash += input.charCodeAt(i) * g**i
+    }
+
+    return hash
+}
+
+
+
+
+// Default collision handler.
+const simpleNextHash: OnCollisionNextIndexHandler = (input, currentHashValue) => input.length * currentHashValue
+
+
+
+
+const showStats = (arr: number[]) => {
+    const max = Math.max(...arr)
+    const min = Math.min(...arr)
+    const total = arr.reduce((acc,cur) => acc+cur)
+    const average = total / arr.length
+    const standardDeviation = (arr.reduce((prev, current) => prev + (current-average)**2)) / arr.length
+    
+    
+    console.log("Max: ", max)
+    console.log("Min: ", min)
+    console.log("Total: ", total)
+    console.log("Average:", average);
+    console.log("Standard Deviation: ",standardDeviation)
 }
 
 
@@ -53,5 +81,7 @@ const fib = (n: number): number => {
 export {
     createDictionaryFromTextFile,
     searchInDictionary,
-    fib,
+    simpleStringHashFunction,
+    simpleNextHash,
+    showStats,
 }
