@@ -76,6 +76,25 @@ const showStats = (arr: number[]) => {
 
 
 
+const runTimeComparison = (func1: (index?: number) => void, func2: (index?: number) => void, iterations: number = 100) => {
+    let dateBefore = Date.now()
+    for(let i=0; i<iterations; i++)
+        func1(i)
+    let runTime1 = Date.now() - dateBefore
+
+
+    dateBefore = Date.now()
+    for(let i=0; i<iterations; i++)
+        func2(i)
+    let runtime2 = Date.now() - dateBefore
+
+
+    return runTime1 / runtime2
+}
+
+
+
+
 
 
 export {
@@ -84,4 +103,5 @@ export {
     simpleStringHashFunction,
     simpleNextHash,
     showStats,
+    runTimeComparison,
 }
