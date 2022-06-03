@@ -11,4 +11,5 @@ export type OnCollisionNextIndexHandler = (input: string, currentHashIndex: numb
 export type DictionaryHashTableOptions = {
     hashFunction?: HashStringFunction,
     nextHash?: OnCollisionNextIndexHandler,
+    showStats?: boolean
 }
