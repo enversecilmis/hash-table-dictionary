@@ -1,27 +1,44 @@
 import DictionaryHashTable from "./Dictionary Hash Table/DictionaryHashTable"
 import { Dictionary } from "./Dictionary Hash Table/types"
-import { createDictionaryFromTextFile, runTimeComparison, searchInDictionary } from "./Dictionary Hash Table/utils"
+import { createDictionaryFromTextFile, rndNum, runTimeComparison, searchInDictionary } from "./Dictionary Hash Table/utils"
 
  
 
 
 const dictionary: Dictionary = createDictionaryFromTextFile('files/sozluk.txt')
-const dictHashTable = DictionaryHashTable.createFromDictionary(dictionary, dictionary.length*4)
+const dictHashTable = DictionaryHashTable.createFromDictionary(dictionary, dictionary.length*4+1,{
+    showStats: true,
+    throwInfiniteLoopError: true
+})
+
+dictHashTable.saveToFile('files/output.txt')
+
+
+
+
+
+
 
 const searchableWords = dictionary.map((pair) => pair[0])
 
-
-let comp = runTimeComparison(
+// Sequential search comparison (from start to finish).
+let sequentialComparison = runTimeComparison(
     (i) => searchInDictionary(searchableWords[i % searchableWords.length], dictionary),
     (i) => dictHashTable.search(searchableWords[i % searchableWords.length]),
-    searchableWords.length*4
+    searchableWords.length
 )
+console.log(`Sequential search comparison: ${sequentialComparison}`)
 
-// let comp = runTimeComparison(
-//     (i) => searchInDictionary('about', dictionary),
-//     (i) => dictHashTable.search('about'),
-//     searchableWords.length*4
-// )
 
-console.log(comp)
+// Random search comparison.
+let randomComparison = runTimeComparison(
+    () => searchInDictionary(searchableWords[rndNum(0,searchableWords.length)], dictionary),
+    () => dictHashTable.search(searchableWords[rndNum(0,searchableWords.length)]),
+    searchableWords.length
+)
+console.log(`Random search comparison: ${randomComparison}`)
+
+
+
+
 

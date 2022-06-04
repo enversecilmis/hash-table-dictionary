@@ -53,7 +53,11 @@ const simpleStringHashFunction: HashStringFunction = (input) => {
 
 
 // Default collision handler.
-const simpleNextHash: OnCollisionNextIndexHandler = (input, currentHashValue) => input.length * currentHashValue
+const simpleNextHash: OnCollisionNextIndexHandler = (currentHashValue, input) => currentHashValue * input.length
+
+const linearProbing: OnCollisionNextIndexHandler = (currentHashValue,_,iteration) => currentHashValue + 1
+
+const quadraticProbing: OnCollisionNextIndexHandler = (currentHashValue, _, iteration) => currentHashValue + iteration**2
 
 
 
@@ -95,6 +99,11 @@ const runTimeComparison = (func1: (index?: number) => void, func2: (index?: numb
 
 
 
+const rndNum = (min: number, max: number) => Math.floor(Math.random() * (max - min) ) + min;
+
+
+
+
 
 
 export {
@@ -104,4 +113,5 @@ export {
     simpleNextHash,
     showStats,
     runTimeComparison,
+    rndNum
 }

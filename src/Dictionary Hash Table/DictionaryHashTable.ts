@@ -9,33 +9,37 @@ import { showStats, simpleNextHash, simpleStringHashFunction } from "./utils"
 
 class DictionaryHashTable {
     hashTable: StringHashTable
+    loadFactor: number
     hashFunc: HashStringFunction
-    nextHash: OnCollisionNextIndexHandler
+    collisionHandler: OnCollisionNextIndexHandler
 
     private allCollisions: number[] = []
 
-    constructor(){}
+    constructor(){
+        this.loadFactor = 0
+    }
 
 
 
 
-    add(input: [string, string]){
+    add(input: [string, string], throwInfiniteLoopError: boolean = false){
         let hashIndex = this.hashFunc(input[0]) % this.hashTable.length
         const hashHistory: number[] = [hashIndex] // For detecting collision loop.
 
         // detect / handle collisions.
-        let collisions = 0
+        let collisionCount = 0
         while(this.hashTable[hashIndex]){
-            collisions++
-            hashIndex = this.nextHash(input[0], hashIndex) % this.hashTable.length
+            collisionCount++
+            hashIndex = this.collisionHandler(hashIndex, input[0], collisionCount) % this.hashTable.length
             
-            // Throw error on collision loop.
-            if(hashHistory.includes(hashIndex)) throw new Error('Infinite collision loop.')
-                hashHistory.push(hashIndex)
+            // Throw error on collision loop if the option is set.
+            if(throwInfiniteLoopError && hashHistory.includes(hashIndex))
+                throw new Error('Infinite collision loop.')
+            hashHistory.push(hashIndex)
         }
         this.hashTable[hashIndex] = [ input[0], input[1] ]
-
-        this.allCollisions.push(collisions)
+        this.loadFactor += 1/this.hashTable.length
+        this.allCollisions.push(collisionCount)
     }
 
 
@@ -44,10 +48,10 @@ class DictionaryHashTable {
     search(searchWord: string): string{
         let hashIndex = this.hashFunc(searchWord) % this.hashTable.length
 
-        let collisions = 0
+        let collisionCount = 0
         while (this.hashTable[hashIndex] && this.hashTable[hashIndex][0] !== searchWord){
-            hashIndex = this.nextHash(searchWord, hashIndex) % this.hashTable.length
-            collisions++
+            collisionCount++
+            hashIndex = this.collisionHandler(hashIndex, searchWord, collisionCount) % this.hashTable.length
         }
 
         return this.hashTable[hashIndex]?
@@ -95,21 +99,34 @@ class DictionaryHashTable {
     static createFromDictionary(
         dictionary: Dictionary,
         tableSize: number,
-        options: DictionaryHashTableOptions = { showStats: false }
+        options?: DictionaryHashTableOptions
     ): DictionaryHashTable {
+        // Default options.
+        const opt = {
+            ...{
+                hashFunction: simpleStringHashFunction,
+                collisionHandler: simpleNextHash,
+                showStats: false,
+                throwInfiniteLoopError: false
+            },
+            ...options
+        }
+
         if(tableSize <= dictionary.length) throw new Error('Hash table size must be bigger than dictionary size.')
         
         const dictionaryHashTable     = new DictionaryHashTable()
-        dictionaryHashTable.hashFunc  = options.hashFunction || simpleStringHashFunction
-        dictionaryHashTable.nextHash  = options.nextHash || simpleNextHash
+        dictionaryHashTable.hashFunc  = opt.hashFunction || simpleStringHashFunction
+        dictionaryHashTable.collisionHandler  = opt.collisionHandler || simpleNextHash
         dictionaryHashTable.hashTable = Array(tableSize)
         
         // Fill in the hash table.
-        dictionary.forEach( pair => dictionaryHashTable.add(pair))
+        dictionary.forEach( pair => dictionaryHashTable.add(pair, opt.throwInfiniteLoopError))
         
         // Statistics:
-        if(options.showStats){
+        if(opt.showStats){
             console.log("*** Hash table created ***")
+            console.log(`Load factor: ${dictionaryHashTable.loadFactor}`)
+            
             console.log("Collision Stats:");
             
             showStats(dictionaryHashTable.allCollisions)
@@ -120,13 +137,6 @@ class DictionaryHashTable {
     }
     
 }
-
-
-
-
-
-
-
 
 
 

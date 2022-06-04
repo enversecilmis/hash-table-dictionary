@@ -6,10 +6,11 @@ export type HashStringFunction = (input: string) => number
 
 export type StringHashTable = [string, string][]
 
-export type OnCollisionNextIndexHandler = (input: string, currentHashIndex: number) => number
+export type OnCollisionNextIndexHandler = ( currentHashValue: number, input?: string, iteration?: number) => number
 
 export type DictionaryHashTableOptions = {
     hashFunction?: HashStringFunction,
-    nextHash?: OnCollisionNextIndexHandler,
-    showStats?: boolean
+    collisionHandler?: OnCollisionNextIndexHandler,
+    showStats?: boolean,
+    throwInfiniteLoopError?: boolean
 }
